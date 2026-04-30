@@ -9,7 +9,7 @@ private:
     string name;
     vector<Column> columns;
     uint32_t rowSize;
-    bool isColumnExists(const string& columnName);
+    bool isColumnExists(const string& columnName) const;
 public:
     Table(const string& name);
     void addColumn(const string& columnName, DataType columnType);

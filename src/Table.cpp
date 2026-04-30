@@ -37,7 +37,7 @@ void Table::printSchema() const {
     }
 }
 
-bool Table::isColumnExists(const string &columnName) {
+bool Table::isColumnExists(const string &columnName) const {
     for(const auto& existColumn: this->columns) {
         if (existColumn.name == columnName) {
             return true;
