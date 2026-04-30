@@ -2,7 +2,23 @@
 #include <iostream>
 
 
-Pager::Pager(fstream& connection) : fileStream(connection){
+Pager::Pager(const string& filePath) : filePath(filePath){
+    if (fileStream.is_open()) {
+        fileStream.close();
+    }
+
+    fileStream.open(filePath, ios::in | ios::out | ios::binary);
+    if (!fileStream.is_open()) {
+        fileStream.open(filePath, ios::out);
+        fileStream.close();
+        fileStream.open(filePath, ios::in | ios::out | ios::binary);
+    }
+
+    if (!fileStream.is_open()) {
+        cerr << "Filestream error" << endl;
+        return;
+    }
+
     for (uint32_t i = 0; i < MAX_PAGES; i++) {
         pages[i] = nullptr;
     }
@@ -10,6 +26,8 @@ Pager::Pager(fstream& connection) : fileStream(connection){
     fileStream.seekg(0, ios::end);
     this->fileByte = fileStream.tellg();
     fileStream.seekg(0, ios::beg);
+
+    cout << "Pager has been started successfully. File size: " << this->fileByte << " byte." << endl;
 }
 
 uint32_t Pager::getFileByte() const {
@@ -43,7 +61,7 @@ void* Pager::getPage(uint32_t pageNumber) {
     return buffer;
 }
 
-void Pager::flush(uint32_t pageNumber) const {
+void Pager::flush(uint32_t pageNumber){
     if (pageNumber >= MAX_PAGES) {
         cerr << "FLUSH ERROR: Requested page number is bigger than MAX_PAGE";
         exit(1);
@@ -52,8 +70,8 @@ void Pager::flush(uint32_t pageNumber) const {
     if (this->pages[pageNumber] == nullptr) return;
 
     uint32_t offset = pageNumber * PAGE_SIZE;
-    this->fileStream.seekp(offset, ios::beg);
+    fileStream.seekp(offset, ios::beg);
 
-    this->fileStream.write((char*) this->pages[pageNumber] , PAGE_SIZE);
-    this->fileStream.flush();
+    fileStream.write((char*) this->pages[pageNumber] , PAGE_SIZE);
+    fileStream.flush();
 }
