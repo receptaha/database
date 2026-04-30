@@ -1,6 +1,17 @@
 #include <iostream>
+using namespace std;
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
-    return 0;
+    cout << "Welcome to Database" << endl;
+    cout << "db> ";
+    string input;
+
+    while (true) {
+        getline(cin, input);
+
+        if (input == "exit" || input == "quit") {
+            cout << "Bye!" << endl;
+            break;
+        }
+    }
 }
