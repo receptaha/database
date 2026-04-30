@@ -18,6 +18,8 @@ public:
     uint32_t getPageCount() const;
 
     void *getPage(uint32_t pageNumber);
+
+    void flush(uint32_t pageNumber) const;
 };
 
 

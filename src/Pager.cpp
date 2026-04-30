@@ -22,7 +22,7 @@ uint32_t Pager::getPageCount() const {
 
 void* Pager::getPage(uint32_t pageNumber) {
     if (pageNumber >= MAX_PAGES) {
-        cerr << "PAGE ERROR: Requested page number is bigger than MAX_PAGE";
+        cerr << "GET PAGE ERROR: Requested page number is bigger than MAX_PAGE";
         exit(1);
     }
 
@@ -41,4 +41,19 @@ void* Pager::getPage(uint32_t pageNumber) {
 
     pages[pageNumber] = buffer;
     return buffer;
+}
+
+void Pager::flush(uint32_t pageNumber) const {
+    if (pageNumber >= MAX_PAGES) {
+        cerr << "FLUSH ERROR: Requested page number is bigger than MAX_PAGE";
+        exit(1);
+    }
+
+    if (this->pages[pageNumber] == nullptr) return;
+
+    uint32_t offset = pageNumber * PAGE_SIZE;
+    this->fileStream.seekp(offset, ios::beg);
+
+    this->fileStream.write((char*) this->pages[pageNumber] , PAGE_SIZE);
+    this->fileStream.flush();
 }
