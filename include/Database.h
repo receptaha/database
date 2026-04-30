@@ -5,24 +5,23 @@
 #include <fstream>
 #include <string>
 
+#include "Table.h"
+
 using namespace std;
 
 class Database {
 private:
-    fstream connection;
     string filePath;
+    Pager* pager;
+    unordered_map<string, Table*> tables;
 
 public:
-    Database();
+    explicit Database(const string& filePath);
     ~Database();
 
-    void create(const string& path);
+    void addTable(const string &tableName);
 
-    void connect(const string& path);
-
-    void disconnect();
-
-    bool isOpen() const;
+    Table *getTable(const string &tableName);
 };
 
 #endif

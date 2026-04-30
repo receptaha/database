@@ -1,57 +1,33 @@
 #include "../include/Database.h"
 
-Database::Database() {
+Database::Database(const string& filePath) : filePath(filePath) {
+    cout << "--- DATABASE HAS BEEN STARTED: " << filePath << " ---" << endl;
+    this->pager = new Pager(filePath);
 }
 
 Database::~Database() {
-    disconnect();
+    for (auto const& [tableName, tablePtr] : tables) {
+        delete tablePtr;
+    }
+    delete pager;
+    cout << "--- DATABASE HAS BEEN CLOSED ---" << endl;
 }
 
-void Database::create(const string& path) {
-    fstream file;
-
-    file.open(path, ios::in | ios::binary);
-    if (file.is_open()) {
-        cerr << "ERROR: Database '" << path << "' already exists!" << endl;
-        file.close();
+void Database::addTable(const string& tableName) {
+    if (tables.contains(tableName)) {
+        cerr << "ADD TABLE ERROR: '" << tableName << "' has already been created!" << endl;
         return;
     }
 
-    file.clear();
-
-    file.open(path, ios::out | ios::binary);
-    if (file.is_open()) {
-        cout << "SUCCESS: '" << path << "' database has been created." << endl;
-        file.close();
-    } else {
-        cerr << "CREATE ERROR: Could not create database file at " << path << endl;
-    }
+    Table* newTable = new Table(tableName, this->pager);
+    tables[tableName] = newTable;
+    cout << "Table has been created: " << tableName << endl;
 }
 
-void Database::connect(const string& path) {
-    if (this->connection.is_open()) {
-        this->connection.close();
+Table* Database::getTable(const string& tableName) {
+    if (!tables.contains(tableName)) {
+        cerr << "GET TABLE ERROR: '" << tableName << "' has not found!" << endl;
+        return nullptr;
     }
-
-    this->connection.open(path, ios::in | ios::out | ios::binary);
-
-    if (!this->connection.is_open()) {
-        this->connection.clear();
-        cerr << "CONNECTION ERROR: Database '" << path << "' not found or could not be opened." << endl;
-    } else {
-        this->filePath = path;
-        cout << "SUCCESS: Connected to " << path << " (Ready for I/O)" << endl;
-    }
-}
-
-void Database::disconnect() {
-    if (this->connection.is_open()) {
-        this->connection.close();
-        cout << "INFO: Disconnected from " << this->filePath << endl;
-        this->filePath = "";
-    }
-}
-
-bool Database::isOpen() const {
-    return this->connection.is_open();
+    return tables[tableName];
 }
