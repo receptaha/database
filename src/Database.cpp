@@ -31,3 +31,7 @@ Table* Database::getTable(const string& tableName) {
     }
     return tables[tableName];
 }
+
+string Database::getDbName() {
+    return this->filePath;
+}
