@@ -15,36 +15,31 @@ void Table::addColumn(const string& columnName, DataType columnType) {
         return;
     }
 
-    Column newColumn;
+    Column* newColumn = new Column();
     uint32_t sizeOfColumn = getDataTypeSize(columnType);
-    newColumn.name = columnName;
-    newColumn.size = sizeOfColumn;
-    newColumn.type = columnType;
-    newColumn.offset = this->rowSize;
+    newColumn->name = columnName;
+    newColumn->size = sizeOfColumn;
+    newColumn->type = columnType;
+    newColumn->offset = this->rowSize;
 
     this->rowSize += sizeOfColumn;
-    this->columns.push_back(newColumn);
+    this->columns[columnName] = newColumn;
 
     cout << "Column added: (" << columnName << ")"
         << " Size: " << sizeOfColumn
-        << " Column Offset: " << newColumn.offset << endl;
+        << " Column Offset: " << newColumn->offset << endl;
 }
 
 void Table::printSchema() const {
     cout << "--- Tablo Semasi: " << name << " ---" << endl;
     cout << "Toplam Satir Boyutu: " << rowSize << " byte" << endl;
-    for (const auto& col : columns) {
-        cout << "- " << col.name << " (Offset: " << col.offset << ")" << endl;
+    for (const auto& [columnName, column] : columns) {
+        cout << "- " << column->name << " (Offset: " << column->offset << ")" << endl;
     }
 }
 
 bool Table::isColumnExists(const string &columnName) const {
-    for(const auto& existColumn: this->columns) {
-        if (existColumn.name == columnName) {
-            return true;
-        }
-    }
-    return false;
+    return this->columns.contains(columnName);
 }
 
 void Table::insert(const vector<Column> &inputColumns, const vector<string> &values) {

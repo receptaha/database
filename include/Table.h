@@ -8,7 +8,7 @@ using namespace std;
 class Table {
 private:
     string name;
-    vector<Column> columns;
+    unordered_map<string, Column*> columns;
     uint32_t rowSize;
     uint32_t numRows;
     Pager* pager;
