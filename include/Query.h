@@ -8,10 +8,10 @@ using namespace std;
 class Query {
 public:
     QueryType type;
-    string targetName;
-    vector<string> columns;
-    vector<string> values;
-    vector<string> conditions;
+    string tablesStr;
+    string columnsStr;
+    string valuesStr;
+    string conditionsStr;
 
     void printDetails() const;
 };
