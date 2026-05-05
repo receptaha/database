@@ -19,9 +19,6 @@ public:
     void addColumn(const string& columnName, DataType columnType);
 
     void printSchema() const;
-    void insert(const vector<Column>& columns, const vector<string>& values);
-
-    static bool serializeColumnData(const Column &column, const string &value, char *rowBuffer);
 };
 
 
