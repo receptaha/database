@@ -26,8 +26,6 @@ Pager::Pager(const string& filePath) : filePath(filePath){
     fileStream.seekg(0, ios::end);
     this->fileByte = fileStream.tellg();
     fileStream.seekg(0, ios::beg);
-
-    cout << "Pager has been started successfully. File size: " << this->fileByte << " byte." << endl;
 }
 
 uint32_t Pager::getFileByte() const {
