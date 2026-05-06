@@ -1,17 +1,45 @@
 #include <iostream>
+#include <string>
+#include <cstdlib>
+#include "include/Database.h"
+#include "include/Parser.h"
+#include "include/Query.h"
+
 using namespace std;
 
-int main() {
-    cout << "Welcome to Database" << endl;
-    cout << "db> ";
-    string input;
+int main(int argc, char* argv[]) {
+    if (argc < 2) {
+        cerr << "ERROR: Database file not specified!" << endl;
+        cerr << "Usage: ./mydb <database_name.db>" << endl;
+        return EXIT_FAILURE;
+    }
 
+    string filename = argv[1];
+
+    Database currentDb(filename);
+
+    cout << "Connected Database: " << filename << endl;
+
+    string input;
     while (true) {
+        cout << currentDb.getDbName() << ">";
         getline(cin, input);
 
         if (input == "exit" || input == "quit") {
-            cout << "Bye!" << endl;
+            cout << "Bye!";
             break;
         }
+
+        if (input.empty()) continue;
+
+        Query myQuery;
+
+        if (!Parser::parseAndSetQuery(input, myQuery)) {
+            cerr << "ERROR: Invalid or unsupported query syntax." << endl;
+        } else {
+            myQuery.printDetails();
+        }
     }
+
+    return EXIT_SUCCESS;
 }
