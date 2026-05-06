@@ -3,7 +3,6 @@
 
 enum class QueryType {
     CREATE_TABLE,
-    CREATE,
     SELECT,
     INSERT_INTO,
     UPDATE,
