@@ -2,6 +2,8 @@
 #define QUERY_H
 #include <vector>
 #include <string>
+
+#include "Column.h"
 #include "QueryType.h"
 using namespace std;
 
@@ -13,6 +15,8 @@ public:
     string valuesStr;
     string conditionsStr;
 
+    vector<Column> parsedColumns;
+    vector<string> targetColumns;
     void printDetails() const;
 };
 
