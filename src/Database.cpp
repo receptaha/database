@@ -1,7 +1,6 @@
 #include "../include/Database.h"
 
 Database::Database(const string& filePath) : filePath(filePath) {
-    cout << "--- DATABASE HAS BEEN STARTED: " << filePath << " ---" << endl;
     this->pager = new Pager(filePath);
 }
 
@@ -10,7 +9,6 @@ Database::~Database() {
         delete tablePtr;
     }
     delete pager;
-    cout << "--- DATABASE HAS BEEN CLOSED ---" << endl;
 }
 
 void Database::addTable(const string& tableName) {
