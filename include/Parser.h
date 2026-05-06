@@ -13,6 +13,7 @@ private:
     static bool parseSelect(const std::string &input, Query &query);
     static bool parseCreateTable(const string &input, Query &query);
     static bool parseUpdate(const string &input, Query &query);
+    static bool parseDelete(const string &input, Query &query);
 
 public:
 

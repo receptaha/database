@@ -17,8 +17,6 @@ QueryType Parser::identifyQueryType(const std::string &input) {
 }
 bool Parser::parseAndSetQuery(const std::string &input, Query &query) {
     query.type = identifyQueryType(input);
-    string word;
-    stringstream ss(input);
 
     switch (query.type) {
         case QueryType::CREATE_TABLE:
@@ -29,6 +27,8 @@ bool Parser::parseAndSetQuery(const std::string &input, Query &query) {
             return parseInsert(input, query);
         case QueryType::UPDATE:
             return parseUpdate(input, query);
+        case QueryType::DELETE:
+            return parseDelete(input, query);
         default:
             return false;
     }
@@ -105,6 +105,25 @@ bool Parser::parseUpdate(const string &input, Query &query) {
         query.tablesStr = matches[1].str();
         query.columnsStr = matches[2].str();
         query.conditionsStr = matches[3].matched ? matches[3].str() : "";
+
+        return true;
+    } catch (...) {
+        return false;
+    }
+}
+
+bool Parser::parseDelete(const string &input, Query &query) {
+    // DELETE FROM table_name WHERE condition
+    try {
+        regex pattern("^\\s*DELETE\\s+FROM\\s+(\\w+)\\s*(?:\\s*WHERE\\s+(.+))?;?$");
+        smatch matches;
+
+        if (!regex_search(input, matches, pattern)) {
+            return false;
+        }
+
+        query.tablesStr = matches[1].str();
+        query.conditionsStr = matches[2].matched ? matches[2].str() : "";
 
         return true;
     } catch (...) {
