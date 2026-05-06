@@ -6,9 +6,7 @@ uint32_t getDataTypeSize(DataType type) {
             return 1;
         case DataType::INT:
             return 4;
-        case DataType::VARCHAR_32:
-            return 32;
-        case DataType::VARCHAR_255:
+        case DataType::VARCHAR:
             return 255;
         default:
             return 0;

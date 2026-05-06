@@ -6,8 +6,7 @@
 enum class DataType {
     INT,
     BOOLEAN,
-    VARCHAR_32,
-    VARCHAR_255
+    VARCHAR,
 };
 
 uint32_t getDataTypeSize(DataType type);
