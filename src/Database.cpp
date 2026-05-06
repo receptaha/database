@@ -1,5 +1,9 @@
 #include "../include/Database.h"
 
+#include "../include/Parser.h"
+#include "../include/Query.h"
+#include "../include/Validator.h"
+
 Database::Database(const string& filePath) : filePath(filePath) {
     this->pager = new Pager(filePath);
 }
@@ -32,4 +36,20 @@ Table* Database::getTable(const string& tableName) {
 
 string Database::getDbName() {
     return this->filePath;
+}
+
+bool Database::exec(const string &input) {
+    Query query;
+    try {
+        if (!Parser::parseAndSetQuery(input, query)) return false;
+        if (!Validator::validateAndSetQuery(query)) return false;
+
+        // TODO switch case yapısı yazılacak ve her query type için ayrı bir exec methodu calıstırılacak.
+
+
+        return true;
+    }catch (exception& e) {
+        cout << e.what() << endl;
+        return false;
+    }
 }

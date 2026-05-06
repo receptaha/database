@@ -20,6 +20,7 @@ public:
     void addTable(const string &tableName);
     Table* getTable(const string &tableName);
     string getDbName();
+    bool exec(const string& input);
 };
 
 #endif
