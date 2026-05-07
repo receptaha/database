@@ -142,7 +142,7 @@ bool Database::execCreateTable(const Query &query) const {
         file.write(reinterpret_cast<const char *>(&constraintCount), sizeof(uint8_t));
 
         for (const auto& constraint : column.constraints) {
-            uint8_t constraintVal = static_cast<uint8_t>(Column::SUPPORTED_CONSTRAINTS.find(constraint)->second);
+            uint8_t constraintVal = static_cast<uint8_t>(Column::SUPPORTED_CONSTRAINTS.at(constraint));
             file.write(reinterpret_cast<const char *>(&constraintVal), sizeof(uint8_t));
         }
     }
