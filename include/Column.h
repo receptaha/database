@@ -3,6 +3,9 @@
 #include <string>
 #include "DataType.h"
 #include <unordered_set>
+
+#include "Constraint.h"
+enum class Constraint;
 using namespace std;
 
 struct Column {
@@ -18,8 +21,11 @@ struct Column {
         {"BOOL", DataType::BOOLEAN},
     };
 
-    inline static const unordered_set<string> SUPPORTED_CONSTRAINTS = {
-        "PRIMARY KEY", "NOT NULL", "AUTO INCREMENT", "UNIQUE"
+    inline static const unordered_map<string, Constraint> SUPPORTED_CONSTRAINTS = {
+        {"PRIMARY KEY", Constraint::PRIMARY_KEY},
+        {"NOT NULL", Constraint::NOT_NULL},
+        {"UNIQUE", Constraint::UNIQUE},
+        {"AUTOINCREMENT", Constraint::AUTOINCREMENT}
     };
 };
 
