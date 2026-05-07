@@ -87,7 +87,11 @@ bool Validator::validateCreateTable(Query &query) {
             validColumn.size = getDataTypeSize(validType);
             validColumn.type = validType;
             validColumn.offset = totalOffset;
-            validColumn.constraints = finded_constraints;
+
+            for (const auto& findedConstraint: finded_constraints) {
+                validColumn.constraints.push_back(Column::SUPPORTED_CONSTRAINTS.at(findedConstraint));
+            }
+
             totalOffset += getDataTypeSize(validType);
             query.parsedColumns.push_back(validColumn);
         }
