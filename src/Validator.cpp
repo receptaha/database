@@ -50,7 +50,7 @@ bool Validator::validateCreateTable(Query &query) {
         }
 
         // Column constraints validation
-        vector<string> constraints, finded_constraints;
+        vector<string> constraints, finded_constraints, unfinded_constraints;
         while (colDef >> word) {
             transform(word.begin(), word.end(), word.begin(), ::toupper);
             constraints.push_back(word);
@@ -62,19 +62,18 @@ bool Validator::validateCreateTable(Query &query) {
             for (size_t i = 0; i < constraints.size(); i++) {
                 findedWord += (findedWord.empty() ? "" : " ") + constraints[i];
                 if (Column::SUPPORTED_CONSTRAINTS.contains(findedWord)) {
+                    unfinded_constraints.clear();
                     totalWord += (totalWord.empty() ? "" : " ") + findedWord;
+                    finded_constraints.push_back(findedWord);
                     findedWord.clear();
+                }else {
+                    unfinded_constraints.push_back(constraints[i]);
                 }
             }
-            stringstream ss2(totalWord);
             string differents_str;
 
-            while (getline(ss2, word, ' ')) finded_constraints.push_back(word);
-
-            for (auto i = 0; i < constraints.size(); i++) {
-                if ((i < finded_constraints.size() && finded_constraints[i] != constraints[i]) || (i >= finded_constraints.size())) {
-                    differents_str += (differents_str.empty() ? "" : " ") + constraints[i];
-                }
+            for (auto const& unFindedConstraint: unfinded_constraints) {
+                differents_str += (differents_str.empty() ? "" : " ") + unFindedConstraint;
             }
 
             if (!differents_str.empty()) {
@@ -82,7 +81,7 @@ bool Validator::validateCreateTable(Query &query) {
             }
 
             transform(colType.begin(), colType.end(), colType.begin(), ::toupper);
-            DataType validType = Column::SUPPORTED_TYPES.find(colType)->second;
+            DataType validType = Column::SUPPORTED_TYPES.at(colType);
             Column validColumn;
             validColumn.name = colName;
             validColumn.size = getDataTypeSize(validType);
