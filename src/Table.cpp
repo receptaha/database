@@ -9,25 +9,13 @@
 Table::Table(const string& name, Pager* p) : name(name), rowSize(0), numRows(0), pager(p) {
 }
 
-void Table::addColumn(const string& columnName, DataType columnType) {
-    if (this->isColumnExists(columnName)) {
-        cerr << "ADD COLUMN ERROR: '" << columnName << "' column is already exists in '" << this->name << "' table" <<  endl;
+void Table::addColumn(Column* column) {
+    if (this->isColumnExists(column->name)) {
+        cerr << "ADD COLUMN ERROR: '" << column->name << "' column is already exists in '" << this->name << "' table" <<  endl;
         return;
     }
 
-    Column* newColumn = new Column();
-    uint32_t sizeOfColumn = getDataTypeSize(columnType);
-    newColumn->name = columnName;
-    newColumn->size = sizeOfColumn;
-    newColumn->type = columnType;
-    newColumn->offset = this->rowSize;
-
-    this->rowSize += sizeOfColumn;
-    this->columns[columnName] = newColumn;
-
-    cout << "Column added: (" << columnName << ")"
-        << " Size: " << sizeOfColumn
-        << " Column Offset: " << newColumn->offset << endl;
+    this->columns[column->name] = column;
 }
 
 void Table::printSchema() const {

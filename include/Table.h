@@ -7,17 +7,16 @@ using namespace std;
 
 class Table {
 private:
-    string name;
     unordered_map<string, Column*> columns;
-    uint32_t rowSize;
-    uint32_t numRows;
     Pager* pager;
     bool isColumnExists(const string& columnName) const;
 
 public:
+    string name;
+    uint32_t rowSize;
+    uint64_t numRows;
     Table(const string& name, Pager* p);
-    void addColumn(const string& columnName, DataType columnType);
-
+    void addColumn(Column* column);
     void printSchema() const;
 };
 
