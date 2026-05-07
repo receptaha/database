@@ -5,18 +5,15 @@
 #include "../include/Validator.h"
 
 Database::Database(const string& filePath) : filePath(filePath) {
-    Database::initialize();
+    this->initialize();
+    this->loadTablesFromHeaders();
 }
 
 Database::~Database() {
-    for (auto const& [tableName, tablePtr] : tables) {
+    for (auto &[tableName, tablePtr] : tables) {
         delete tablePtr;
     }
-    delete pager;
 }
-
-#include <filesystem>
-#include <stdexcept>
 
 void Database::initialize() const {
     if (filesystem::exists(this->filePath) && !filesystem::is_directory(this->filePath)) {
@@ -47,17 +44,6 @@ void Database::initialize() const {
         filesystem::create_directory(tablesPath);
         cout << "Tables directory created." << endl;
     }
-}
-
-void Database::addTable(const string& tableName) {
-    if (tables.contains(tableName)) {
-        cerr << "ADD TABLE ERROR: '" << tableName << "' has already been created!" << endl;
-        return;
-    }
-
-    Table* newTable = new Table(tableName, this->pager);
-    tables[tableName] = newTable;
-    cout << "Table has been created: " << tableName << endl;
 }
 
 Table* Database::getTable(const string& tableName) {
@@ -92,8 +78,8 @@ bool Database::exec(const string &input) const {
 
 bool Database::execCreateTable(const Query &query) const {
     string tableName = query.tablesStr;
-    string headerFilePath = getHeadersDirPath() + "/" + tableName + ".dat";
-    string tableFilePath  = getTablesDirPath() + "/" + tableName + ".tbl";
+    string headerFilePath = this->getHeaderFilePath(tableName);
+    string tableFilePath  = this->getTableFilePath(tableName);
 
     if (filesystem::exists(headerFilePath) || filesystem::exists(tableFilePath)) {
         throw runtime_error(tableName + " table already exists");
@@ -142,7 +128,7 @@ bool Database::execCreateTable(const Query &query) const {
         file.write(reinterpret_cast<const char *>(&constraintCount), sizeof(uint8_t));
 
         for (const auto& constraint : column.constraints) {
-            uint8_t constraintVal = static_cast<uint8_t>(Column::SUPPORTED_CONSTRAINTS.at(constraint));
+            uint8_t constraintVal = static_cast<uint8_t>(constraint);
             file.write(reinterpret_cast<const char *>(&constraintVal), sizeof(uint8_t));
         }
     }
@@ -157,4 +143,108 @@ string Database::getHeadersDirPath() const {
 string Database::getTablesDirPath() const {
     return this->filePath + "/tables";
 }
+
+string Database::getHeaderFilePath(const string &tableName) const {
+    return getHeadersDirPath() + "/" + tableName + ".dat";
+}
+
+string Database::getTableFilePath(const string &tableName) const {
+    return getTablesDirPath() + "/" + tableName + ".tbl";
+}
+
+void Database::loadTablesFromHeaders() {
+    string headerDirPath = getHeadersDirPath();
+    if (!filesystem::exists(headerDirPath)) {
+        throw runtime_error("Header directory has not founded for loading, path: " + headerDirPath);
+    }
+
+    for (const auto& file: filesystem::directory_iterator(headerDirPath)) {
+        if (file.path().extension() != ".dat") {
+            cerr << file.path().c_str() << " is not a header file";
+            continue;
+        }
+
+        if (!file.is_regular_file()) {
+            cerr << file.path().c_str() << " is not a regular file";
+            continue;
+        }
+
+        ifstream fstream(file.path().c_str(), ios::binary);
+        if (!fstream.is_open()) {
+            cerr << file.path().c_str() << " has not opened for reading mode";
+            continue;
+        }
+
+        uint32_t columnCount;
+        fstream.read(reinterpret_cast<char*>(&columnCount), sizeof(columnCount));
+
+        uint32_t rowSize;
+        fstream.read(reinterpret_cast<char*>(&rowSize), sizeof(rowSize));
+
+        uint64_t rowCount;
+        fstream.read(reinterpret_cast<char*>(&rowCount), sizeof(rowCount));
+
+        uint8_t tableNameLength;
+        fstream.read(reinterpret_cast<char*>(&tableNameLength), sizeof(tableNameLength));
+
+        char nameBuffer[255] = {0};
+        fstream.read(nameBuffer, 255);
+        string tableName(nameBuffer);
+
+        Pager* tablePager = new Pager(this->getTableFilePath(tableName));
+        Table* loadedTable = new Table(tableName, tablePager);
+
+        loadedTable->rowSize = rowSize;
+        loadedTable->numRows = rowCount;
+
+        for (uint32_t i = 0; i < columnCount; i++) {
+            Column* column = new Column;
+
+            uint8_t colNameLength;
+            fstream.read(reinterpret_cast<char*>(&colNameLength), sizeof(colNameLength));
+
+            char colNameBuffer[255] = {0};
+            fstream.read(colNameBuffer, 255);
+            string colName(colNameBuffer);
+            column->name = colName;
+
+            uint32_t typeInt;
+            fstream.read(reinterpret_cast<char*>(&typeInt), sizeof(typeInt));
+            auto colType = static_cast<DataType>(typeInt);
+            column->type = colType;
+
+            uint32_t columnSize, columnOffset;
+            fstream.read(reinterpret_cast<char*>(&columnSize), sizeof(columnSize));
+            column->size = columnSize;
+
+            fstream.read(reinterpret_cast<char*>(&columnOffset), sizeof(columnOffset));
+            column->offset = columnOffset;
+
+            uint8_t constraintCount;
+            fstream.read(reinterpret_cast<char *>(&constraintCount), sizeof(constraintCount));
+
+            for (uint8_t j = 0; j < constraintCount; j++) {
+                uint8_t constraintVal;
+                fstream.read(reinterpret_cast<char *>(&constraintVal), sizeof(constraintVal));
+                auto constraint = static_cast<Constraint>(constraintVal);
+                column->constraints.push_back(constraint);
+            }
+
+            loadedTable->addColumn(column);
+        }
+
+        this->addTable(loadedTable);
+    }
+}
+
+void Database::addTable(Table* table) {
+    if (this->tables.contains(table->name)) {
+        throw runtime_error(table->name + " table is already exists!");
+    }
+
+    this->tables[table->name] = table;
+    cout << table->name << " table is added to database" << endl;
+}
+
+
 

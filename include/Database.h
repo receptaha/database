@@ -13,17 +13,19 @@ using namespace std;
 class Database {
 private:
     string filePath;
-    Pager* pager;
     unordered_map<string, Table*> tables;
 
     void initialize() const;
     bool execCreateTable(const Query& query) const;
     string getHeadersDirPath() const;
     string getTablesDirPath() const;
+    string getHeaderFilePath(const string& tableName) const;
+    string getTableFilePath(const string& tableName) const;
+    void loadTablesFromHeaders();
+    void addTable(Table *table);
 public:
     explicit Database(const string& filePath);
     ~Database();
-    void addTable(const string &tableName);
     Table* getTable(const string &tableName);
     string getDbName();
     bool exec(const string& input) const;
