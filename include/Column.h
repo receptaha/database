@@ -13,7 +13,7 @@ struct Column {
     DataType type;
     uint32_t size;
     uint32_t offset;
-    vector<string> constraints;
+    vector<Constraint> constraints;
 
     inline static const unordered_map<string, DataType> SUPPORTED_TYPES = {
         {"INT", DataType::INT},
