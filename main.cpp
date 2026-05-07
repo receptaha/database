@@ -8,13 +8,13 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    if (argc < 2) {
-        cerr << "ERROR: Database file not specified!" << endl;
-        cerr << "Usage: ./mydb <database_name.db>" << endl;
-        return EXIT_FAILURE;
-    }
+    // if (argc < 2) {
+    //     cerr << "ERROR: Database file not specified!" << endl;
+    //     cerr << "Usage: ./mydb <database_name.db>" << endl;
+    //     return EXIT_FAILURE;
+    // }
 
-    string filename = argv[1];
+    string filename = "my_db";
 
     Database currentDb(filename);
 
@@ -32,13 +32,7 @@ int main(int argc, char* argv[]) {
 
         if (input.empty()) continue;
 
-        Query myQuery;
-
-        if (!Parser::parseAndSetQuery(input, myQuery)) {
-            cerr << "ERROR: Invalid or unsupported query syntax." << endl;
-        } else {
-            myQuery.printDetails();
-        }
+        currentDb.exec(input);
     }
 
     return EXIT_SUCCESS;
