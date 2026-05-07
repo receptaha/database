@@ -81,7 +81,8 @@ bool Validator::validateCreateTable(Query &query) {
                 throw invalid_argument("There is unmatched constraints for column '" + colName + "': " + differents_str);
             }
 
-            DataType validType = Column::SUPPORTED_TYPES.at(colType);
+            transform(colType.begin(), colType.end(), colType.begin(), ::toupper);
+            DataType validType = Column::SUPPORTED_TYPES.find(colType)->second;
             Column validColumn;
             validColumn.name = colName;
             validColumn.size = getDataTypeSize(validType);
