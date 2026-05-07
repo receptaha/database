@@ -11,11 +11,12 @@ Table::Table(const string& name, Pager* p) : name(name), rowSize(0), numRows(0),
 
 void Table::addColumn(Column* column) {
     if (this->isColumnExists(column->name)) {
-        cerr << "ADD COLUMN ERROR: '" << column->name << "' column is already exists in '" << this->name << "' table" <<  endl;
-        return;
+        throw runtime_error(column->name + " column is already exists in " + this->name + " table");
     }
 
     this->columns[column->name] = column;
+    cout << column->name << " column is added to " << this->name << " table" << endl;
+
 }
 
 void Table::printSchema() const {
